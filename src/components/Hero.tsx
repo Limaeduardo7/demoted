@@ -4,7 +4,7 @@ import { BookOpen, BrainCircuit, GraduationCap } from 'lucide-react';
 
 export const Hero = () => {
   return (
-    <section id="home" className="min-h-screen pt-20 bg-gray-900 text-white relative overflow-hidden">
+    <section id="inicio" className="min-h-screen pt-20 flex items-center bg-gray-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img
           src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=2070"

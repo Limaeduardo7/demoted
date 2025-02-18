@@ -1,70 +1,79 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Menu, X, Calculator } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { title: 'Início', href: '#home' },
+    { title: 'Início', href: '#inicio' },
     { title: 'Sobre', href: '#sobre' },
-    { title: 'Serviços', href: '#servicos' },
+    { title: 'Meus Serviços', href: '#servicos' },
     { title: 'Metodologia', href: '#metodologia' },
     { title: 'Contato', href: '#contato' }
   ];
 
+  const handleClick = (href: string) => {
+    setIsOpen(false);
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <header className="fixed w-full bg-gray-900/95 backdrop-blur-sm z-50 border-b border-gray-800">
+    <header className="fixed top-0 left-0 right-0 bg-gray-900 border-b border-gray-800 z-50">
       <nav className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <a href="#home" className="flex items-center space-x-2">
-            <Calculator className="w-8 h-8 text-blue-400" />
-            <span className="text-xl font-bold text-white">Matemática com Ted</span>
+        <div className="flex justify-between items-center">
+          <a href="#inicio" className="text-xl font-bold text-white">
+            Professor Ted
           </a>
 
           {/* Desktop Menu */}
-          <ul className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8">
             {menuItems.map((item) => (
-              <li key={item.title}>
-                <a
-                  href={item.href}
-                  className="text-gray-300 hover:text-blue-400 transition-colors duration-300"
-                >
-                  {item.title}
-                </a>
-              </li>
+              <button
+                key={item.title}
+                onClick={() => handleClick(item.href)}
+                className="text-gray-300 hover:text-white transition-colors duration-300"
+              >
+                {item.title}
+              </button>
             ))}
-          </ul>
+          </div>
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-gray-300 hover:text-blue-400"
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-gray-300 hover:text-white"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <motion.div
-          initial={false}
-          animate={{ height: isMenuOpen ? 'auto' : 0 }}
-          className="md:hidden overflow-hidden"
-        >
-          <ul className="pt-4 pb-2 space-y-4">
-            {menuItems.map((item) => (
-              <li key={item.title}>
-                <a
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block text-gray-300 hover:text-blue-400 transition-colors duration-300"
-                >
-                  {item.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden mt-4"
+            >
+              <div className="flex flex-col space-y-4 pb-4">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.title}
+                    onClick={() => handleClick(item.href)}
+                    className="text-gray-300 hover:text-white transition-colors duration-300"
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </header>
   );
