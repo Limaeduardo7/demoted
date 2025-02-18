@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Send, X } from 'lucide-react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI('AIzaSyBWRFcfjE_PV-iJv98KTyFPWjmzAesQJAk');
 
 export const Chat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,33 +21,39 @@ export const Chat = () => {
     setInput("");
     setIsTyping(true);
 
-    const userMessage = input.toLowerCase();
-    let response = "";
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      
+      const prompt = `Você é o assistente virtual do Professor Ted, um professor de matemática especializado em ensino personalizado e inclusivo.
+      
+      Informações sobre os serviços:
+      - Aulas particulares: Atendimento individualizado para alunos do ensino fundamental e médio
+      - Atendimento especializado: Aulas adaptadas para alunos neurodivergentes
+      - Grupos pequenos: Aulas em grupos reduzidos
+      - Preparação para provas: Auxílio específico para avaliações escolares e vestibulares
+      - Reforço escolar: Suporte adicional para compreensão do conteúdo
+      - Material adaptado: Recursos didáticos personalizados
+      
+      Pergunta do usuário: ${input}
+      
+      Responda de forma amigável e profissional, mantendo o tom de assistente virtual.`;
 
-    if (userMessage.includes("aula particular") || userMessage.includes("individual")) {
-      response = "O Professor Ted oferece atendimento individualizado para alunos do ensino fundamental e médio, com foco nas necessidades específicas de cada estudante.";
-    } else if (userMessage.includes("neurodivergente") || userMessage.includes("tdah") || userMessage.includes("autismo")) {
-      response = "O Professor Ted oferece atendimento especializado com aulas adaptadas para alunos neurodivergentes, respeitando suas necessidades específicas.";
-    } else if (userMessage.includes("grupo") || userMessage.includes("turma")) {
-      response = "O Professor Ted trabalha com grupos pequenos, oferecendo aulas em grupos reduzidos para garantir maior atenção individual a cada aluno.";
-    } else if (userMessage.includes("prova") || userMessage.includes("vestibular") || userMessage.includes("avaliação")) {
-      response = "O Professor Ted oferece auxílio específico para preparação de avaliações escolares e vestibulares, ajudando os alunos a se prepararem da melhor forma possível.";
-    } else if (userMessage.includes("reforço") || userMessage.includes("dificuldade")) {
-      response = "O Professor Ted disponibiliza suporte adicional através do reforço escolar para melhor compreensão do conteúdo escolar, ajudando a superar as dificuldades.";
-    } else if (userMessage.includes("material") || userMessage.includes("recursos")) {
-      response = "O Professor Ted trabalha com recursos didáticos personalizados para cada aluno, criando materiais adaptados que facilitam o aprendizado.";
-    } else if (userMessage.includes("preço") || userMessage.includes("valor") || userMessage.includes("custo")) {
-      response = "Para informações sobre valores, por favor, entre em contato diretamente com o Professor Ted. Ele adapta os preços de acordo com o plano de aulas mais adequado para você.";
-    } else if (userMessage.includes("horário") || userMessage.includes("disponibilidade")) {
-      response = "O Professor Ted pode conversar sobre os horários disponíveis que melhor se adequem à sua rotina. Entre em contato para verificar as possibilidades.";
-    } else {
-      response = "Olá! O Professor Ted é especializado em oferecer diversos serviços educacionais, incluindo aulas particulares, atendimento especializado para alunos neurodivergentes, grupos pequenos, preparação para provas, reforço escolar e material adaptado. Como posso ajudar você a conhecer melhor esses serviços?";
+      const result = await model.generateContent(prompt);
+      const response = result.response.text();
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        setMessages(prev => [...prev, { text: response, isUser: false }]);
+      }, 1500);
+    } catch (error) {
+      console.error('Erro ao gerar resposta:', error);
+      const fallbackResponse = "Desculpe, estou tendo dificuldades técnicas no momento. Por favor, tente novamente mais tarde ou entre em contato diretamente com o Professor Ted.";
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        setMessages(prev => [...prev, { text: fallbackResponse, isUser: false }]);
+      }, 1500);
     }
-
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages(prev => [...prev, { text: response, isUser: false }]);
-    }, 1500);
   };
 
   return (
